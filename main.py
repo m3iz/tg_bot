@@ -1,6 +1,7 @@
 import telebot
 import os
 import g4f
+import sys
 
 g4f.debug.logging = False # Disenable logging
 g4f.check_version = False # Disable automatic version checking
@@ -10,10 +11,19 @@ TOKEN = "964241877:AAGutKVF-Yake89PwsYmxsGLzq--yF4wi9s"
 # Создайте объект бота
 bot = telebot.TeleBot(TOKEN)
 
+def restart_script():
+    python = sys.executable
+    os.execv(python, ['python'] + sys.argv)
+
 # Функция, которая вызывается при команде /start
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Привет! Я ваш бот.")
+
+@bot.message_handler(commands=['restart'])
+def handle_restart(message):
+    bot.send_message(message.chat.id, "Перезапускаю скрипт.")
+    restart_script()
 
 @bot.message_handler(commands=['gpt'])
 def handle_gpt(message):
