@@ -1,7 +1,11 @@
 import telebot
 import os
+import g4f
 
-# Здесь вы должны указать токен своего бота
+g4f.debug.logging = False # Disenable logging
+g4f.check_version = False # Disable automatic version checking
+
+# Здесь вы должны указать токен своего бота 
 TOKEN = "964241877:AAGutKVF-Yake89PwsYmxsGLzq--yF4wi9s"
 # Создайте объект бота
 bot = telebot.TeleBot(TOKEN)
@@ -10,6 +14,26 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Привет! Я ваш бот.")
+
+@bot.message_handler(commands=['gpt'])
+def handle_gpt(message):
+    response = g4f.ChatCompletion.create(
+        model=g4f.models.gpt_4,
+        messages=[{"role": "user", "content": message.text}],
+    )  # alternative model setting
+    bot.send_message(message.chat.id, response)
+
+@bot.message_handler(commands=['dir'])
+def handle_dir(message):
+    file_list = os.listdir()
+    result="Список файлов: "
+    for file in file_list:
+        result += file+ " "
+    bot.send_message(message.chat.id, result)
+
+@bot.message_handler(commands=['help'])
+def handle_help(message):
+    bot.send_message(message.chat.id, "Вот что я умею:\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n")
 
 # Функция, которая вызывается при отправке текстового сообщения
 @bot.message_handler(func=lambda message: True)
@@ -30,7 +54,7 @@ def handle_document(message):
     file_name = message.document.file_name
     with open(file_name, 'wb') as new_file:
         new_file.write(downloaded_file)
-
+    bot.reply_to(message, "Ваш файл получен и загружен на сервер")
 # Запускаем бота
 if __name__ == "__main__":
     bot.polling()
