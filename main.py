@@ -18,7 +18,12 @@ def restart_script():
 # Функция, которая вызывается при команде /start
 @bot.message_handler(commands=['start'])
 def handle_start(message):
-    bot.send_message(message.chat.id, "Привет! Я ваш бот.")
+    bot.send_message(message.chat.id, "Привет! Я многофункциональный бот.")
+
+@bot.message_handler(commands=['stop'])
+def handle_stop(message):
+    bot.send_message(message.chat.id, "Останавливаю бота.")
+    sys.exit()
 
 @bot.message_handler(commands=['restart'])
 def handle_restart(message):
@@ -27,6 +32,10 @@ def handle_restart(message):
 
 @bot.message_handler(commands=['gpt'])
 def handle_gpt(message):
+    # Открываем файл в режиме 'a' для добавления данных в конец файла
+    with open('access.log', 'a') as file:
+        file.write(message.text)
+    file.close
     response = g4f.ChatCompletion.create(
         model=g4f.models.gpt_4,
         messages=[{"role": "user", "content": message.text}],
@@ -43,7 +52,7 @@ def handle_dir(message):
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    bot.send_message(message.chat.id, "Вот что я умею:\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n")
+    bot.send_message(message.chat.id, "Вот что я умею:\n /restart - перезапуск бота\n /stop - выключить бота\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n")
 
 # Функция, которая вызывается при отправке текстового сообщения
 @bot.message_handler(func=lambda message: True)
