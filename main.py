@@ -2,9 +2,11 @@ import telebot
 import os
 import g4f
 import sys
-import shedul
+from modules import shedul, backend
+
 g4f.debug.logging = False # Disenable logging
 g4f.check_version = False # Disable automatic version checking
+#245537285 chat id
 
 # Здесь вы должны указать токен своего бота 
 TOKEN = "964241877:AAGutKVF-Yake89PwsYmxsGLzq--yF4wi9s"
@@ -19,6 +21,8 @@ def restart_script():
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Привет! Я многофункциональный бот.")
+    photo1 = open('toyota-supra.jpg', 'rb')
+    bot.send_photo(message.chat.id, photo1, caption='cap')
 
 @bot.message_handler(commands=['stop'])
 def handle_stop(message):
@@ -52,12 +56,25 @@ def handle_dir(message):
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    bot.send_message(message.chat.id, "Вот что я умею:\n /restart - перезапуск бота\n /stop - выключить бота\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n")
+    bot.send_message(message.chat.id, "Вот что я умею:\n /restart - перезапуск бота\n /stop - выключить бота\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n /dbclear - очистить базу данных\n")
+
+
+@bot.message_handler(commands=['dbclear'])
+def handle_dbclear(message):
+    backend.delete_table_content()
+    bot.send_message(message.chat.id, "Db cleared")
+    
+@bot.message_handler(commands=['dbshow'])
+def handle_dbshow(message):
+    try:
+        res = backend.view_table_content()
+        bot.send_message(message.chat.id, res)
 
 # Функция, которая вызывается при отправке текстового сообщения
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
     bot.reply_to(message, message.text)
+
 
 # Функция, которая вызывается при отправке файла
 @bot.message_handler(content_types=['document'])
@@ -76,4 +93,8 @@ def handle_document(message):
     bot.reply_to(message, "Ваш файл получен и загружен на сервер")
 # Запускаем бота
 if __name__ == "__main__":
+    scheduler = shedul.schedul_init(shedul.update, 5)
+    #backend.insert_image('toyota-supra.jpg', 'Title Here', 'Description Here')
+    #backend.save_image_from_db(1, 'output_image.jpg')
     bot.polling()
+    

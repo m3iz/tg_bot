@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 # Подключение к базе данных
-conn = sqlite3.connect('mydatabase.db')
+conn = sqlite3.connect('mydatabase.db', check_same_thread=False)
 cursor = conn.cursor()
 
 # Создание таблицы
@@ -22,10 +22,12 @@ def view_table_content():
     """
     Функция для просмотра содержимого таблицы 'images'.
     """
-    cursor.execute("SELECT * FROM images")
+    cursor.execute("SELECT id, title, description FROM images")
     records = cursor.fetchall()
+    
     for row in records:
         print(row)
+    return row
 
 def delete_table_content():
     """
@@ -73,22 +75,24 @@ def save_image_from_db(image_id, output_file):
         print(f"Изображение сохранено в файл: {output_file}")
     else:
         print("Изображение с таким ID не найдено в базе данных.")
+
 # Пример использования
-insert_image('toyota-supra.jpg', 'Title Here', 'Description Here')
-save_image_from_db(1, 'output_image.jpg')
-image_record = get_image(1)
+if __name__ == "__main__":
+    insert_image('toyota-supra.jpg', 'Title Here', 'Description Here')
+    save_image_from_db(1, 'output_image.jpg')
+    image_record = get_image(1)
 
 
 
-if image_record:
-    image, title, description = image_record[1], image_record[2], image_record[3]
-    with open('retrieved_image.jpg', 'wb') as file:
-        file.write(image)
-    print("Title:", title)
-    print("Description:", description)
+    if image_record:
+        image, title, description = image_record[1], image_record[2], image_record[3]
+        with open('retrieved_image.jpg', 'wb') as file:
+            file.write(image)
+        print("Title:", title)
+        print("Description:", description)
 
 # Просмотр содержимого таблицы
-view_table_content()
+        view_table_content()
 
 # Удаление содержимого таблицы
-delete_table_content()
+        delete_table_content()

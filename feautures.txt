@@ -1,0 +1,19 @@
+import telebot
+from telebot.types import InputMediaPhoto
+
+TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+bot = telebot.TeleBot(TOKEN)
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "Привет! Я бот, который может отправлять несколько фото в одном сообщении.")
+
+@bot.message_handler(commands=['sendphotos'])
+def send_album(message):
+    media = [InputMediaPhoto(open('photo1.jpg', 'rb'), caption="Вот ваши фотографии с подписью!"),
+             InputMediaPhoto(open('photo2.jpg', 'rb')),
+             InputMediaPhoto(open('photo3.jpg', 'rb'))]
+
+    bot.send_media_group(message.chat.id, media)
+
+bot.polling()
