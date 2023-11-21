@@ -2,7 +2,7 @@ import telebot
 import os
 import g4f
 import sys
-
+import shedul
 g4f.debug.logging = False # Disenable logging
 g4f.check_version = False # Disable automatic version checking
 
