@@ -9,6 +9,7 @@ from modules import shedul, backend
 g4f.debug.logging = False # Disenable logging
 g4f.check_version = False # Disable automatic version checking
 #245537285 chat id
+#@kin0bunker - channel
 
 # Здесь вы должны указать токен своего бота 
 TOKEN = "964241877:AAGutKVF-Yake89PwsYmxsGLzq--yF4wi9s"
@@ -24,22 +25,26 @@ def restart_script():
 
 def make_post():
     global post_id 
-    image_record = backend.get_image(post_id)
+    try:
+        image_record = backend.get_image(post_id)
 
-    if image_record:
-        image, title, description = image_record[1], image_record[2], image_record[3]
-    post_id=post_id+1
-    bot.send_photo(245537285, image, caption=image_record[3])
+        if image_record:
+            image, title, description = image_record[1], image_record[2], image_record[3]
+        post_id=post_id+1
+        bot.send_photo(1312085506, image, caption=image_record[3]) 
+    except:
+        post_id = 1
+        image_record = backend.get_image(post_id)
+
+        if image_record:
+            image, title, description = image_record[1], image_record[2], image_record[3]
+        post_id=post_id+1
+        bot.send_photo("@kin0bunker", image, caption=image_record[3])
 # Функция, которая вызывается при команде /start
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Привет! Я многофункциональный бот.")
     #photo1 = open('post.jpg', 'rb')
-    image_record = backend.get_image(1)
-
-    if image_record:
-        image, title, description = image_record[1], image_record[2], image_record[3]
-    bot.send_photo(message.chat.id, image, caption=image_record[3])
 
 @bot.message_handler(commands=['stop'])
 def handle_stop(message):
@@ -57,12 +62,14 @@ def handle_gpt(message):
     with open('access.log', 'a') as file:
         file.write(message.text)
     file.close
-    response = g4f.ChatCompletion.create(
-        model=g4f.models.gpt_4,
-        messages=[{"role": "user", "content": message.text}],
-    )  # alternative model setting
-    bot.send_message(message.chat.id, response)
-
+    try:
+        response = g4f.ChatCompletion.create(
+            model=g4f.models.gpt_4,
+            messages=[{"role": "user", "content": message.text}],
+        )  # alternative model setting
+        bot.send_message(message.chat.id, response)
+    except:
+        bot.send_message(message.chat.id, "Something went wrong")
 @bot.message_handler(commands=['dir'])
 def handle_dir(message):
     file_list = os.listdir()
@@ -79,7 +86,7 @@ def handle_help(message):
 @bot.message_handler(commands=['dbclear'])
 def handle_dbclear(message):
     backend.delete_table_content()
-    bot.send_message(message.chat.id, "Db cleared")
+    bot.send_message(message.chat.id, "Database cleared")
     
 @bot.message_handler(commands=['dbshow'])
 def handle_dbshow(message):
@@ -114,7 +121,7 @@ def handle_document(message):
     os.remove(file_name)
 # Запускаем бота
 if __name__ == "__main__":
-    scheduler = shedul.schedul_init(make_post, 1)
+    scheduler = shedul.schedul_init(make_post, 76)
     #backend.insert_image('toyota-supra.jpg', 'Title Here', 'Description Here')
     #backend.save_image_from_db(1, 'output_image.jpg')
     bot.polling()
