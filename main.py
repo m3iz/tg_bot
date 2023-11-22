@@ -28,6 +28,7 @@ def restart_script():
     os.execv(python, ['python'] + sys.argv)
 
 def make_post():
+    fetch_film()
     global post_id
     try:
         image_record = backend.get_image(post_id)
@@ -132,7 +133,7 @@ def handle_document(message):
     os.remove(file_name)
 # Запускаем бота
 if __name__ == "__main__":
-    scheduler = shedul.schedul_init(make_post, 76)
+    scheduler = shedul.schedul_init(make_post, 45)
     #backend.insert_image('toyota-supra.jpg', 'Title Here', 'Description Here')
     #backend.save_image_from_db(1, 'output_image.jpg')
     bot.polling()
