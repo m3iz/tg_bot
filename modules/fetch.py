@@ -7,6 +7,24 @@ from kinopoisk_dev.model import Movie
 
 TOKEN = "WK9YDQE-XEMMP4E-M5CK6NV-85WWH6E"
 
+class Film:
+    def __init__(self):
+        self.__json_data = asyncio.run(get_random_async())
+        self.__data_obj = json.loads(self.__json_data.json())
+        self.__info = name_value=self.__data_obj.get("name")+" (" + str(self.__data_obj.get("year")) + ")" + " Рейтинг: kp: " + str(self.__data_obj.get("rating").get("kp")) + " imdb: " + str(self.__data_obj.get("rating").get("imdb")) + "\n" + self.__data_obj.get("description")
+        self.__url_value = self.__data_obj.get("poster")
+        self.__image_url = self.__url_value.get("url")
+        self.__description_value = self.__data_obj.get("description")
+    def get_poster(self):
+        response = requests.get(self.__image_url)
+
+        if response.status_code == 200:
+            # Получаем содержимое изображения в бинарном виде
+            image_data = response.content
+        return image_data
+
+    def get_info(self):
+        return self.__info
 
 async def get_random_async() -> Movie:
     """
@@ -29,28 +47,7 @@ def get_random() -> Movie:
 
 
 if __name__ == "__main__":
-    adata = asyncio.run(get_random_async())
-    data = get_random()
-
-    # Распарсим строку JSON в объект Python
-
-    data_obj = json.loads(data.json())
-    print(data_obj)
-    name_value=data_obj.get("name")+" (" + data_obj.get("")
-    print(name_value)
-    # Получим значение поля "description"
-    url_value = data_obj.get("poster")
-    image_url=url_value.get("url")
-    description_value = data_obj.get("description")
-    # Выведем значение на экран
-    print(description_value)
-
-    response = requests.get(image_url)
-
-    if response.status_code == 200:
-        # Получаем содержимое изображения в бинарном виде
-        image_data = response.content
-
-        with open("poster.jpg", 'wb') as file:
-            # Записываем данные изображения в файл
-            file.write(image_data)
+    test = Film()
+    print(test.get_info())
+    with open("poster.jpg", 'wb') as file:
+        file.write(test.get_poster())

@@ -2,7 +2,8 @@ import telebot
 import os
 import g4f
 import sys
-from modules import shedul, backend
+
+from modules import shedul, backend, fetch
 
 
 
@@ -18,20 +19,22 @@ bot = telebot.TeleBot(TOKEN)
 
 post_id = 1
 
+def fetch_film():
+    nfilm = fetch.Film()
+    backend.insert_image(nfilm.get_poster(), "Title",nfilm.get_info())
 
 def restart_script():
     python = sys.executable
     os.execv(python, ['python'] + sys.argv)
 
 def make_post():
-    global post_id 
+    global post_id
     try:
         image_record = backend.get_image(post_id)
-
         if image_record:
             image, title, description = image_record[1], image_record[2], image_record[3]
         post_id=post_id+1
-        bot.send_photo(1312085506, image, caption=image_record[3]) 
+        bot.send_photo("@kin0bunker", image, caption=image_record[3])
     except:
         post_id = 1
         image_record = backend.get_image(post_id)
@@ -44,13 +47,21 @@ def make_post():
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Привет! Я многофункциональный бот.")
-    #photo1 = open('post.jpg', 'rb')
+
+@bot.message_handler(commands=['fetch'])
+def handle_fetch(message):
+    bot.send_message(message.chat.id, "Ищем новый фильм и добавляем его в базу")
+    fetch_film()
 
 @bot.message_handler(commands=['stop'])
 def handle_stop(message):
     bot.send_message(message.chat.id, "Останавливаю бота.")
     sys.exit()
 
+@bot.message_handler(commands=['post'])
+def handle_post(message):
+    bot.send_message(message.chat.id, "Пост сделан")
+    make_post()
 @bot.message_handler(commands=['restart'])
 def handle_restart(message):
     bot.send_message(message.chat.id, "Перезапускаю скрипт.")
@@ -117,7 +128,7 @@ def handle_document(message):
     with open(file_name, 'wb') as new_file:
         new_file.write(downloaded_file)
     bot.reply_to(message, "Ваш файл получен и загружен на сервер")
-    backend.insert_image(file_name, 'Title', message.caption)
+    backend.insert_image(file_info, 'Title', message.caption)
     os.remove(file_name)
 # Запускаем бота
 if __name__ == "__main__":

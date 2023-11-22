@@ -1,6 +1,7 @@
 import sqlite3
 import os
 
+
 # Подключение к базе данных
 conn = sqlite3.connect('mydatabase.db', check_same_thread=False)
 cursor = conn.cursor()
@@ -37,12 +38,12 @@ def delete_table_content():
     conn.commit()
     print("Все записи удалены из таблицы 'images'.")
 
-def insert_image(image_path, title, description):
+def insert_image(blob_data, title, description):
     """
     Функция для вставки изображения и строк в базу данных.
     """
-    with open(image_path, 'rb') as file:
-        blob_data = file.read()
+    #with open(image_path, 'rb') as file:
+        #blob_data = file.read()
     
     cursor.execute("INSERT INTO images (image, title, description) VALUES (?, ?, ?)", 
                    (blob_data, title, description))
