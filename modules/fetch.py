@@ -11,9 +11,10 @@ class Film:
     def __init__(self):
         self.__json_data = asyncio.run(get_random_async())
         self.__data_obj = json.loads(self.__json_data.json())
-        self.__info = name_value=self.__data_obj.get("name")+" (" + str(self.__data_obj.get("year")) + ")" + " Рейтинг: kp: " + str(self.__data_obj.get("rating").get("kp")) + " imdb: " + str(self.__data_obj.get("rating").get("imdb")) + "\n" + self.__data_obj.get("description")
+        self.__info = name_value=self.__data_obj.get("name")+" (" + str(self.__data_obj.get("year")) + ")" + " Жанр: " + self.__data_obj.get("genres")[0].get("name") + " Рейтинг: kp: " + str(self.__data_obj.get("rating").get("kp")) + " imdb: " + str(self.__data_obj.get("rating").get("imdb")) + "\n" + self.__data_obj.get("description")
         self.__url_value = self.__data_obj.get("poster")
         self.__image_url = self.__url_value.get("url")
+        self.__genre = self.__data_obj.get("genres")[0].get("name")
         self.__description_value = self.__data_obj.get("description")
     def get_poster(self):
         response = requests.get(self.__image_url)
@@ -22,7 +23,8 @@ class Film:
             # Получаем содержимое изображения в бинарном виде
             image_data = response.content
         return image_data
-
+    def get_genre(self):
+        return self.__genre
     def get_info(self):
         return self.__info
 
@@ -47,7 +49,8 @@ def get_random() -> Movie:
 
 
 if __name__ == "__main__":
+
     test = Film()
     print(test.get_info())
-    with open("poster.jpg", 'wb') as file:
-        file.write(test.get_poster())
+    #with open("poster.jpg", 'wb') as file:
+    #    file.write(test.get_poster())

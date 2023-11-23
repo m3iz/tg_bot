@@ -3,7 +3,7 @@ import os
 import g4f
 import sys
 
-from modules import shedul, backend, fetch
+from modules import shedul, backend, fetch, timer
 
 
 
@@ -26,8 +26,13 @@ def fetch_film():
 def restart_script():
     python = sys.executable
     os.execv(python, ['python'] + sys.argv)
-
+def format_time(seconds):
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    return f"{hours} час(а/ов), {minutes} минут(а/ы), {seconds} секунд(а/ы)"
 def make_post():
+    timer.timer.reset()
     fetch_film()
     global post_id
     try:
@@ -59,6 +64,9 @@ def handle_stop(message):
     bot.send_message(message.chat.id, "Останавливаю бота.")
     sys.exit()
 
+@bot.message_handler(commands=['timer'])
+def handle_timer(message):
+    bot.send_message(message.chat.id, format_time(timer.timer.get_time()))
 @bot.message_handler(commands=['post'])
 def handle_post(message):
     bot.send_message(message.chat.id, "Пост сделан")
@@ -92,14 +100,18 @@ def handle_dir(message):
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    bot.send_message(message.chat.id, "Вот что я умею:\n /restart - перезапуск бота\n /stop - выключить бота\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n /dbclear - очистить базу данных\n/dbshow - показать количество записей в базе данных\n/dbadd - добавить запись")
+    bot.send_message(message.chat.id, "Вот что я умею:\n /restart - перезапуск бота\n /stop - выключить бота\n /dir - вывести список файлов на сервере\n /gpt 'request' - запрос в chatGPT\n /dbclear - очистить базу данных\n/dbshow - показать количество записей в базе данных\n")
 
 
 @bot.message_handler(commands=['dbclear'])
 def handle_dbclear(message):
     backend.delete_table_content()
     bot.send_message(message.chat.id, "Database cleared")
-    
+
+@bot.message_handler(commands=['rand'])
+def handle_rand(message):
+    nfilm = fetch.Film()
+    bot.send_photo(message.chat.id, nfilm.get_poster(), nfilm.get_info())
 @bot.message_handler(commands=['dbshow'])
 def handle_dbshow(message):
     try:
@@ -112,7 +124,7 @@ def handle_dbshow(message):
 # Функция, которая вызывается при отправке текстового сообщения
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
-    bot.reply_to(message, message.text)
+    bot.reply_to(message, "Я понимаю только команды: /rand - Посоветую фильмслучайного жанра\n/com - Помогу выбрать комедию\n/horr - Подберу ужастик\n/tril - Найду триллер")
 
 # Функция, которая вызывается при отправке файла
 @bot.message_handler(content_types=['document'])
